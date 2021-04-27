@@ -4702,7 +4702,7 @@ os.makedirs("NxLineage", exist_ok=True)
 
 |Lineage visualised via Plotly|
 |---|
-|<img src="images/output_87_0.png" width="400">|
+|[<img src="images/output_87_0.png" width="400">](output/NxLineage/SONG.html)|
 
 Immediately, the categorization of bronze, silver, gold tables is clearly evident. Furthermore, the implied parallel & sequential paths of materialization is evident.
 
