@@ -4591,8 +4591,6 @@ import matplotlib.pyplot as plt
 nx.draw_spring(g)
 ```
 
-
-    
 ![png](images/output_85_0.png)
     
 
@@ -4702,16 +4700,9 @@ os.makedirs("NxLineage", exist_ok=True)
 #display(fig)
 ```
 
-
-```python
-%%html
-<iframe src="NxLineage/SONG.html" width="800" height="600"></iframe>
-```
-
-
-<iframe src="output/NxLineage/SONG.html" width="800" height="600"></iframe>
-
-
+|Lineage visualised via Plotly|
+|---|
+|<img src="images/output_87_0.png" width="400">|
 
 Immediately, the categorization of bronze, silver, gold tables is clearly evident. Furthermore, the implied parallel & sequential paths of materialization is evident.
 
