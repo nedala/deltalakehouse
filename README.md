@@ -2486,7 +2486,7 @@ With the persistence of the zip package containing the loader jobs in the airflo
 
 # ETL Lineage Analysis
 
-Like most data warehouses, ESC's implementation turned into a spaghetti mess of many tables and scripts. The exact lineage and pedigree of bronze, silver, gold layers is now extremely convoluted and non-linear. For two reasons -- first, weeding out unnecessary traces and second, to improve performance of the linear ETL, it was imperative to untangle the big knotted DML codebase for reengineering. Below, a snapshot of one of the 50 reporting table lineages that are currently served by ESC EDW.
+Like most data warehouses, ESC's implementation turned into a spaghetti mess of many tables and scripts. The exact lineage and pedigree of bronze, silver, gold layers is now extremely convoluted and non-linear. For two reasons -- first, weeding out unnecessary traces and second, to improve performance of the linear ETL -- it was imperative to untangle the big knotted DML codebase for reengineering. Below, a snapshot of one of the 50 reporting table lineages that are currently served by ESC EDW.
 
 |The complexity of the existing ESC's Neoview DML|
 |---|
@@ -4593,7 +4593,7 @@ nx.draw_spring(g)
 
 
     
-![png](output_85_0.png)
+![png](images/output_85_0.png)
     
 
 
@@ -4709,7 +4709,7 @@ os.makedirs("NxLineage", exist_ok=True)
 ```
 
 
-<iframe src="NxLineage/SONG.html" width="800" height="600"></iframe>
+<iframe src="output/NxLineage/SONG.html" width="800" height="600"></iframe>
 
 
 
