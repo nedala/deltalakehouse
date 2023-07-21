@@ -1,0 +1,170 @@
+import nltk
+from nltk.stem import WordNetLemmatizer 
+from nltk.corpus import stopwords
+
+# Make sure to download the required resources
+nltk.download('punkt')
+nltk.download('wordnet')
+nltk.download('stopwords')
+
+lemmatizer = WordNetLemmatizer()
+
+# Your input string
+input_string = "Horse, Cow, Pig Hair, Purse, Belt, Earrings, Xerox, Ink, Toner"
+
+# Tokenization
+tokens = nltk.word_tokenize(input_string)
+
+# Lemmatization
+lemmas = [lemmatizer.lemmatize(token) for token in tokens]
+
+# Remove stop words
+stop_words = set(stopwords.words('english'))
+filtered_lemmas = [w for w in lemmas if not w in stop_words]
+
+print(filtered_lemmas)
+
+--------------------
+
+from pyspark.ml.feature import CountVectorizer
+from pyspark.ml.clustering import LDA
+
+# Assuming 'spark' is your SparkSession and 'df' is your DataFrame
+# and the column "words" contains tokenized words of each document
+
+# Convert to word count vectors
+cv = CountVectorizer(inputCol="words", outputCol="features")
+model = cv.fit(df)
+result = model.transform(df)
+
+# Train LDA model
+lda = LDA(k=10, maxIter=10)  # Adjust 'k' and 'maxIter' as needed
+ldaModel = lda.fit(result)
+
+# Display topics
+topics = ldaModel.describeTopics(5)  # Adjust the number of terms as needed
+topics.show()
+
+# To map topic indices to actual words, you'll need to refer back to the vocabulary from the CountVectorizer model
+vocab = model.vocabulary
+
+# For instance, to map the terms in the first topic to actual words
+first_topic = topics.first()
+words = [vocab[i] for i in first_topic['termIndices']]
+print(words)
+
+------------------
+
+from sentence_transformers import SentenceTransformer, util
+import torch
+
+# Load a pre-trained sentence transformer model
+model = SentenceTransformer('all-MiniLM-L6-v2')
+
+# Define your corpus
+corpus = ["Horse", "Cow", "Pig Hair", "Purse", "Belt", "Earrings", "Xerox", "Ink", "Toner"]
+corpus_embeddings = model.encode(corpus, convert_to_tensor=True)
+
+# Let's say we want to find the most similar words to 'Horse'
+query = "Horse"
+query_embedding = model.encode(query, convert_to_tensor=True)
+
+# Compute cosine-similarities
+cos_scores = util.pytorch_cos_sim(query_embedding, corpus_embeddings)[0]
+
+# Sort the scores in descending order
+top_results = torch.topk(cos_scores, k=5)
+
+print("\nThe top 5 most similar words to", query, "are:")
+for score, idx in zip(top_results[0], top_results[1]):
+    print(corpus[idx], "(Score: %.4f)" % (score))
+
+-------------------
+
+from sentence_transformers import SentenceTransformer, InputExample, losses
+from torch.utils.data import DataLoader
+
+# Load a pre-trained sentence transformer model
+model = SentenceTransformer('all-MiniLM-L6-v2')
+
+# Define your examples. Let's imagine you have some sentences that are categorized (e.g., same category means they are similar)
+# Note that the categorization here is not like a typical classification task
+# Instead, we define sentence pairs that we consider similar (i.e., in the same category)
+examples = [
+    InputExample(texts=["My first sentence", "My second sentence"], label=0.8),
+    InputExample(texts=["Another pair", "Of similar sentences"], label=0.9),
+    # more examples...
+]
+
+# Define your DataLoader
+train_dataloader = DataLoader(examples, shuffle=True, batch_size=16)
+
+# Define your loss function
+train_loss = losses.CosineSimilarityLoss(model=model)
+
+# Tune the model
+model.fit(train_objectives=[(train_dataloader, train_loss)], epochs=1, warmup_steps=100)
+
+-------------------
+
+# Let's say we want to find the most similar sentences to a given query
+query = "My first sentence"
+query_embedding = model.encode(query, convert_to_tensor=True)
+
+# For simplicity, we'll use the same sentences as the corpus
+corpus_embeddings = model.encode([ex.texts[0] for ex in examples], convert_to_tensor=True)
+
+# Compute cosine-similarities
+cos_scores = util.pytorch_cos_sim(query_embedding, corpus_embeddings)[0]
+
+# Sort the scores in descending order
+top_results = torch.topk(cos_scores, k=5)
+
+print("\nThe top 5 most similar sentences to", query, "are:")
+for score, idx in zip(top_results[0], top_results[1]):
+    print(examples[idx].texts[0], "(Score: %.4f)" % (score))
+
+----
+
+
+from pyspark.sql import SparkSession
+
+# Create a SparkSession
+spark = SparkSession.builder.getOrCreate()
+
+# Read the Excel file into a DataFrame
+df = spark.read.format('com.databricks.spark.csv') \
+    .options(header='true', inferschema='true') \
+    .load('file.xlsx')
+
+# Perform any necessary preprocessing steps
+# e.g., tokenization, removal of stopwords, etc.
+
+----
+import pandas as pd
+from sentence_transformers import InputExample
+from torch.utils.data import DataLoader, Dataset
+
+# Convert the PySpark DataFrame to a pandas DataFrame
+pdf = df.toPandas()
+
+# Define a custom Dataset
+class MyDataset(Dataset):
+    def __init__(self, data, transform=None):
+        self.data = data
+        self.transform = transform
+
+    def __getitem__(self, index):
+        row = self.data.iloc[index]
+        text, label = row['product_text'], row['class_product']
+        example = InputExample(texts=[text], label=label)
+        if self.transform:
+            example = self.transform(example)
+        return example
+
+    def __len__(self):
+        return len(self.data)
+
+# Create a DataLoader
+dataset = MyDataset(pdf)
+dataloader = DataLoader(dataset, batch_size=16, shuffle=True)
