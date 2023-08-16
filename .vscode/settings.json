@@ -1,0 +1,13 @@
+{
+    "sqltools.connections": [
+        {
+            "connectionMethod": "Hostname and Token",
+            "catalog": "hive_metastore",
+            "previewLimit": 50,
+            "driver": "Databricks",
+            "name": "Datalab Strada",
+            "host": "hertz-datalab-dataplatform.cloud.databricks.com",
+            "path": "/sql/protocolv1/o/1957546315544672/0718-145151-vig6s3q5"
+        }
+    ]
+}
